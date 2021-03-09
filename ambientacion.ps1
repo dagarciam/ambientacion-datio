@@ -1,33 +1,43 @@
 [Console]::OutputEncoding = [System.Text.Encoding]::UTF8
 
+$SCRIPT_VERSION = "0.2.0"
+
 $HADOOP_HOME = "C:\hadoop"
 $M2_HOME = "C:\maven"
 $M2_VERSION = "3.6.3"
-$JAVA_HOME = "C:\Program Files\Java\jdk1.8.0_281"
 
+$ORACLE_JDK_URI = 'https://www.oracle.com/java/technologies/javase/javase-jdk8-downloads.html'
 
 $DOWNLOAD_DIR = "${env:USERPROFILE}\Downloads"
 $RSA_KEY_FILENAME = "${env:USERPROFILE}/.ssh/id_rsa"
 $SETTINGS_DIR = "${env:USERPROFILE}\.m2\"
 $SETTINGS_FILE = "${env:USERPROFILE}\.m2\settings.xml"
-$JAVA_EXE = "$DOWNLOAD_DIR\jdk-$JDK_VERSION-windows-x64.exe"
 $GIT_EXE = "$DOWNLOAD_DIR\Git-2.30.0.2-64-bit.exe"
 $INTELLIJ_EXE = "$DOWNLOAD_DIR\ideaIC-2020.3.2.exe"
 $INTELLIJ_CONFIG = "$DOWNLOAD_DIR\silent-intellij.config"
 $SUBLIME_TEXT = "$DOWNLOAD_DIR\Sublime_Text_Build_3211_x64_Setup.exe"
+$raw = (Invoke-WebRequest -Uri $ORACLE_JDK_URI -UseBasicParsing).RawContent
+$JAVA_FILE =  $raw.Split([Environment]::NewLine) | ForEach-Object { If ($_ -imatch "data-file='.*(jdk-.*-windows-x64.exe)'"){ $Matches[1] } }
+$JAVA_VERSION =  $raw.Split([Environment]::NewLine) | ForEach-Object { If ($_ -imatch "data-file='.*jdk-8u(.*)-windows-x64.exe'"){ $Matches[1] } }
+$JAVA_EXE = "$DOWNLOAD_DIR\$JAVA_FILE"
+$JAVA_HOME = "C:\Program Files\Java\jdk1.8.0_$JAVA_VERSION"
+
+[Console]::WriteLine("Descarga el archivo $JAVA_FILE en el directorio: $DOWNLOAD_DIR")
+[Console]::WriteLine("Deberas aceptar los terminos y condiciones de uso además de iniciar sesión con una cuenta Oracle (si no la tienes puedes crear una).")
+Read-Host "Presiona ENTER Para comenzar"
+Start-Process "microsoft-edge:$ORACLE_JDK_URI"
+Read-Host 'Cuando la descarga haya concluido presiona ENTER'
 
 New-Item -ItemType Directory -Force -Path "$HADOOP_HOME\bin"
 New-Item -ItemType Directory -Force -Path $M2_HOME
 New-Item -ItemType Directory -Force -Path $SETTINGS_DIR
 
 $wc = New-Object net.webclient
-
 $wc.Downloadfile("https://github.com/steveloughran/winutils/raw/master/hadoop-2.7.1/bin/winutils.exe", "$HADOOP_HOME\bin\winutils.exe")
 $wc.Downloadfile("https://downloads.apache.org/maven/maven-3/$M2_VERSION/binaries/apache-maven-$M2_VERSION-bin.zip", "$M2_HOME\apache-maven-$M2_VERSION-bin.zip")
 $wc.Downloadfile("https://github.com/git-for-windows/git/releases/download/v2.30.0.windows.2/Git-2.30.0.2-64-bit.exe", $GIT_EXE)
-$wc.Downloadfile("https://www.googleapis.com/drive/v3/files/1--SiVicvWF3WV76RK5H_5fH2sZD798VP?alt=media&key=AIzaSyBbCveZFfm17wJVX_EBRT-D1o8pyVl9kFY", $JAVA_EXE)
 $wc.Downloadfile("https://download.jetbrains.com/idea/ideaIC-2020.3.2.exe", $INTELLIJ_EXE)
-$wc.Downloadfile("https://www.googleapis.com/drive/v3/files/1HtO8_ZL5FME39E8KMS0NYgjTrP4NYacv?alt=media&key=AIzaSyBbCveZFfm17wJVX_EBRT-D1o8pyVl9kFY", $INTELLIJ_CONFIG)
+$wc.Downloadfile("https://raw.githubusercontent.com/dagarciam/ambientacion-datio/$SCRIPT_VERSION/resources/silent-intellij.config", $INTELLIJ_CONFIG)
 $wc.Downloadfile("https://download.sublimetext.com/Sublime%20Text%20Build%203211%20x64%20Setup.exe", $SUBLIME_TEXT)
 
 Add-Type -assembly "system.io.compression.filesystem"
@@ -60,7 +70,7 @@ ssh-keygen -t rsa -m pem -C $CONTRACTOR_EMAIL -f $RSA_KEY_FILENAME -q -N """"
 Get-Content "$RSA_KEY_FILENAME.pub"
 Start-Process "microsoft-edge:https://globaldevtools.bbva.com/bitbucket/plugins/servlet/ssh/account/keys"
 Read-Host  "Agrega la llave, cuando lo hayas hecho presiona ENTER..."
-$wc.Downloadfile("https://www.googleapis.com/drive/v3/files/1oxFyilHpVy8rbQRtIS031nXf9rbwllt3?alt=media&key=AIzaSyBbCveZFfm17wJVX_EBRT-D1o8pyVl9kFY", $SETTINGS_FILE)
+$wc.Downloadfile("https://raw.githubusercontent.com/dagarciam/ambientacion-datio/$SCRIPT_VERSION/resources/settings_MX.xml", $SETTINGS_FILE)
 (Get-Content -path $SETTINGS_FILE -Raw) -replace 'BBVA_USERNAME', ($CONTRACTOR_EMAIL.Split("@")[0]) | Out-File -FilePath $SETTINGS_FILE
 (Get-Content -path $SETTINGS_FILE -Raw) -replace 'ARTIFACTORY_API_KEY', $ARTIFACTORY_API_KEY | Out-File -FilePath $SETTINGS_FILE
 [Console]::WriteLine("Bien hecho!")
