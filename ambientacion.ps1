@@ -1,5 +1,7 @@
 [Console]::OutputEncoding = [System.Text.Encoding]::UTF8
 
+$SCRIPT_VERSION = "0.2.0"
+
 $HADOOP_HOME = "C:\hadoop"
 $M2_HOME = "C:\maven"
 $M2_VERSION = "3.6.3"
@@ -27,7 +29,7 @@ $wc.Downloadfile("https://downloads.apache.org/maven/maven-3/$M2_VERSION/binarie
 $wc.Downloadfile("https://github.com/git-for-windows/git/releases/download/v2.30.0.windows.2/Git-2.30.0.2-64-bit.exe", $GIT_EXE)
 $wc.Downloadfile("https://www.googleapis.com/drive/v3/files/1--SiVicvWF3WV76RK5H_5fH2sZD798VP?alt=media&key=AIzaSyBbCveZFfm17wJVX_EBRT-D1o8pyVl9kFY", $JAVA_EXE)
 $wc.Downloadfile("https://download.jetbrains.com/idea/ideaIC-2020.3.2.exe", $INTELLIJ_EXE)
-$wc.Downloadfile("https://www.googleapis.com/drive/v3/files/1HtO8_ZL5FME39E8KMS0NYgjTrP4NYacv?alt=media&key=AIzaSyBbCveZFfm17wJVX_EBRT-D1o8pyVl9kFY", $INTELLIJ_CONFIG)
+$wc.Downloadfile("https://raw.githubusercontent.com/dagarciam/ambientacion-datio/$SCRIPT_VERSION/resources/silent-intellij.config", $INTELLIJ_CONFIG)
 $wc.Downloadfile("https://download.sublimetext.com/Sublime%20Text%20Build%203211%20x64%20Setup.exe", $SUBLIME_TEXT)
 
 Add-Type -assembly "system.io.compression.filesystem"
@@ -60,7 +62,7 @@ ssh-keygen -t rsa -m pem -C $CONTRACTOR_EMAIL -f $RSA_KEY_FILENAME -q -N """"
 Get-Content "$RSA_KEY_FILENAME.pub"
 Start-Process "microsoft-edge:https://globaldevtools.bbva.com/bitbucket/plugins/servlet/ssh/account/keys"
 Read-Host  "Agrega la llave, cuando lo hayas hecho presiona ENTER..."
-$wc.Downloadfile("https://www.googleapis.com/drive/v3/files/1oxFyilHpVy8rbQRtIS031nXf9rbwllt3?alt=media&key=AIzaSyBbCveZFfm17wJVX_EBRT-D1o8pyVl9kFY", $SETTINGS_FILE)
+$wc.Downloadfile("https://raw.githubusercontent.com/dagarciam/ambientacion-datio/$SCRIPT_VERSION/resources/settings_MX.xml", $SETTINGS_FILE)
 (Get-Content -path $SETTINGS_FILE -Raw) -replace 'BBVA_USERNAME', ($CONTRACTOR_EMAIL.Split("@")[0]) | Out-File -FilePath $SETTINGS_FILE
 (Get-Content -path $SETTINGS_FILE -Raw) -replace 'ARTIFACTORY_API_KEY', $ARTIFACTORY_API_KEY | Out-File -FilePath $SETTINGS_FILE
 [Console]::WriteLine("Bien hecho!")
