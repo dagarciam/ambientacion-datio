@@ -1,7 +1,16 @@
-# ambientacion-datio
+# Script Ambientación DATIO v0.1 para Windows 10
 
 ## ¿Qué hace este Script?
-???
+* Descarga de **Apache Hadoop winutils** en el directorio `C:\hadoop\bin\winutils.exe`
+* Descarga de **Apache Maven 3.6.3** en el directorio
+`C:\maven\`
+* Instalación de **GIT 2.30.0.2**
+* Descarga e Instalación del **JDK 8u281** (desde google drive)
+* Instalación de **IntelliJ Idea Community Edition 2020.3.2**
+* Instalación de **Sublime Text build 3211**
+* Seteo de variables de entorno `JAVA_HOME`, `HADOOP_HOME`, `M2_HOME` y modificación de la variable `PATH`
+* Auxilio en la creación de llave pública `~\.ssh\id_rsa.pub` para conexión a **Bitbucket**
+* Auxilio en la Creación de archivo `~\.m2\settings.xml` para conexión a **Artifactory**
 
 ## Requisitos
 * Cuenta BBVA
