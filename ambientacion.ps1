@@ -16,7 +16,7 @@ $GIT_EXE = "$DOWNLOAD_DIR\Git-2.30.0.2-64-bit.exe"
 $INTELLIJ_EXE = "$DOWNLOAD_DIR\ideaIC-2020.3.2.exe"
 $INTELLIJ_CONFIG = "$DOWNLOAD_DIR\silent-intellij.config"
 $SUBLIME_TEXT = "$DOWNLOAD_DIR\Sublime_Text_Build_3211_x64_Setup.exe"
-$raw = (Invoke-WebRequest -Uri $ORACLE_JDK_URI).RawContent
+$raw = (Invoke-WebRequest -Uri $ORACLE_JDK_URI -UseBasicParsing).RawContent
 $JAVA_FILE =  $raw.Split([Environment]::NewLine) | ForEach-Object { If ($_ -imatch "data-file='.*(jdk-.*-windows-x64.exe)'"){ $Matches[1] } }
 $JAVA_VERSION =  $raw.Split([Environment]::NewLine) | ForEach-Object { If ($_ -imatch "data-file='.*jdk-8u(.*)-windows-x64.exe'"){ $Matches[1] } }
 $JAVA_EXE = "$DOWNLOAD_DIR\$JAVA_FILE"
