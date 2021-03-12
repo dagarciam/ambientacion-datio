@@ -87,7 +87,7 @@ Function updateEnviromentVar($envVar, $newValue) {
     $path = [System.Environment]::GetEnvironmentVariable($pathString)
     $newPath = ""
     If($oldValue){
-        $response = Read-Host "El archivo $rsaKeyPubFileName existe desea sobreescribirlo? (s/n)"
+        $response = Read-Host "La variable de entorno $envVar existe con el valor $oldValue, ¿desea sobreescribirla con el valor $newValue? (s/n)"
         If($response -eq "s"){
             $path.Split(";") | ForEach-Object {
                 If($_ -imatch "$oldValue$binSufix"){
@@ -108,8 +108,11 @@ Function updateEnviromentVar($envVar, $newValue) {
 # JDK
 If($installJDK){
     $raw = (Invoke-WebRequest -Uri $oraclejdkuri -UseBasicParsing).RawContent
-    $jdkFileName =  $raw.Split([Environment]::NewLine) | ForEach-Object { If ($_ -imatch "data-file='.*(jdk-.*-windows-x64.exe)'"){ $Matches[1] } }
-    $jdkVersion =  $raw.Split([Environment]::NewLine) | ForEach-Object { If ($_ -imatch "data-file='.*jdk-8u(.*)-windows-x64.exe'"){ $Matches[1] } }
+    $jdkFileName, $jdkVersion = $raw.Split([Environment]::NewLine) | ForEach-Object { 
+        If ($_ -imatch "data-file='.*(jdk-8u(.*)-windows-x64.exe)'"){ 
+            @($Matches[1], $Matches[2]) 
+        } 
+    }
     $jdkDownloadPath = "$downloadPAth$jdkFileName"
     $javaHome = "C:\Program Files\Java\jdk1.8.0_$jdkVersion\"
     [Console]::WriteLine("Descarga el archivo $jdkFileName en el directorio: $jdkDownloadPath")
@@ -169,7 +172,7 @@ If($installSublimeText){
 
 # RSA KEYS
 if (Test-Path $rsaKeyPubFileName) {
-    $response = Read-Host "El archivo $rsaKeyPubFileName existe desea sobreescribirlo? (s/n)"
+    $response = Read-Host "El archivo $rsaKeyPubFileName existe, ¿desea sobreescribirlo? (s/n)"
     If($response -eq "s"){
         Remove-Item $rsaKeyFileName
         Remove-Item $rsaKeyPubFileName
