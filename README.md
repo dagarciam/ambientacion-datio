@@ -17,16 +17,20 @@
 * Microsoft Edge
 
 ## Ejecución
-1. Abrir PowerShell con permisos de Administrador
+1. Abrir PowerShell
 2. Habilitar la ejecución de Scripts ejecutando el siguiente comando 
 ```powershell
 Set-ExecutionPolicy Unrestricted -Scope CurrentUser
 ```
-3. Ejecutar el script
+3. Descargar el script con el comando:
+```powershell
+Invoke-WebRequest -Uri "https://raw.githubusercontent.com/dagarciam/ambientacion-datio/0.2.1/ambientacion.ps1" -OutFile "ambientacion.ps1"
+```
+4. Ejecutar el script
 ```powershell
 .\ambientacion.ps1
 ```
-4. Edite el archivo de texto colocando TRUE o FALSE a los pasos que desea ejecutar por ejemplo para omitir la instalación de HADOOP WINUTILS y GIT el archivo deberá verse así: 
+5. Edite el archivo de texto colocando TRUE o FALSE a los pasos que desea ejecutar por ejemplo para omitir la instalación de HADOOP WINUTILS y GIT el archivo deberá verse así: 
 ```
 INSTALL_JDK=TRUE
 INSTALL_HADOOP_WINUTILS=FALSE
@@ -35,4 +39,4 @@ INSTALL_GIT=FALSE
 INSTALL_INTELLIJ=TRUE
 INSTALL_SUBLIME=TRUE
 ```
-5. A lo largo del proceso esté atento a la consola, le solicitará información y le indicará los pasos que debe realizar de forma manual.
+6. A lo largo del proceso esté atento a la consola, le solicitará información y le indicará los pasos que debe realizar de forma manual.
