@@ -67,13 +67,18 @@ $wc = New-Object net.webclient
 $wc.Downloadfile($githubConfigFile, $configFileDowloadPath)
 Start-Process notepad $configFileDowloadPath -Wait
 
+Start-Process "${browser}:$globalDevToolsUrl" -Wait
+[Console]::WriteLine("Inicia sesión en el navegador con las credenciales de tu cuenta bbva")
+Read-Host 'Cuando lo hayas hecho presiona ENTER...'
+$contractorEmail = Read-Host 'Correo BBVA (ejemplo-> developer.ninja.contractor@bbva.com)'
+
 (Get-Content $configFileDowloadPath).split([Environment]::NewLine) | ForEach-Object { 
-    If ($_ -imatch "INSTALL_JDK=(.*)"){If($Matches[1] = "TRUE"){$installJDK = 1}}
-    If ($_ -imatch "INSTALL_HADOOP_WINUTILS=(.*)"){If($Matches[1] = "TRUE"){$installHadoop = 1}}
-    If ($_ -imatch "INSTALL_MAVEN=(.*)"){If($Matches[1] = "TRUE"){$installMaven = 1}}
-    If ($_ -imatch "INSTALL_GIT=(.*)"){If($Matches[1] = "TRUE"){$installGit = 1}}
-    If ($_ -imatch "INSTALL_INTELLIJ=(.*)"){If($Matches[1] = "TRUE"){$installIntellij = 1}}
-    If ($_ -imatch "INSTALL_SUBLIME_TEXT=(.*)"){If($Matches[1] = "TRUE"){$installSublimeText = 1}}
+    If ($_ -imatch "INSTALL_JDK=(.*)"){If($Matches[1] -eq "TRUE"){$installJDK = 1}}
+    If ($_ -imatch "INSTALL_HADOOP_WINUTILS=(.*)"){If($Matches[1] -eq "TRUE"){$installHadoop = 1}}
+    If ($_ -imatch "INSTALL_MAVEN=(.*)"){If($Matches[1] -eq "TRUE"){$installMaven = 1}}
+    If ($_ -imatch "INSTALL_GIT=(.*)"){If($Matches[1] -eq "TRUE"){$installGit = 1}}
+    If ($_ -imatch "INSTALL_INTELLIJ=(.*)"){If($Matches[1] -eq "TRUE"){$installIntellij = 1}}
+    If ($_ -imatch "INSTALL_SUBLIME_TEXT=(.*)"){If($Matches[1] -eq "TRUE"){$installSublimeText = 1}}
 }
 
 # UPDATE ENV VAR Function
@@ -82,7 +87,8 @@ Function updateEnviromentVar($envVar, $newValue) {
     $path = [System.Environment]::GetEnvironmentVariable($pathString)
     $newPath = ""
     If($oldValue){
-        If(Read-Host "Desea actualizar la variable JAVA_HOME de '$oldValue' a '$newValue' ? (s/n)" == "s"){
+        $response = Read-Host "El archivo $rsaKeyPubFileName existe desea sobreescribirlo? (s/n)"
+        If($response -eq "s"){
             $path.Split(";") | ForEach-Object {
                 If($_ -imatch "$oldValue$binSufix"){
                     $newPath = "$newPath%$envVar%$binSufix;"
@@ -124,12 +130,8 @@ If($installHadoop){
 
 # MAVEN
 If($installMaven){
-    Start-Process "${browser}:$globalDevToolsUrl"
-    [Console]::WriteLine("Inicia sesión en el navegador con las credenciales de tu cuenta bbva")
-    Read-Host 'Cuando lo hayas hecho presiona ENTER...'
     Start-Process "${browser}:$artifactoryProfileUril"
-    $artifactoryAPIKey = Read-Host 'API-KEY'
-    $contractorEmail = Read-Host 'Correo BBVA (ejemplo-> danieladan.garcia.contractor@bbva.com)'
+    $artifactoryAPIKey = Read-Host 'API-KEY'    
     New-Item -ItemType Directory -Force -Path $mavenHome
     New-Item -ItemType Directory -Force -Path $mavenUserPath
     $wc.Downloadfile($mavenUrl, $mavenDownloadPath)
@@ -167,7 +169,8 @@ If($installSublimeText){
 
 # RSA KEYS
 if (Test-Path $rsaKeyPubFileName) {
-    If(Read-Host "El archivo $rsaKeyPubFileName existe desea sobreescribirlo? (s/n)" == "s"){
+    $response = Read-Host "El archivo $rsaKeyPubFileName existe desea sobreescribirlo? (s/n)"
+    If($response -eq "s"){
         Remove-Item $rsaKeyFileName
         Remove-Item $rsaKeyPubFileName
         ssh-keygen -t rsa -m pem -C $contractorEmail -f $rsaKeyFileName -q -N """"
