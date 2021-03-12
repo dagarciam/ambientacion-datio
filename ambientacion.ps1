@@ -4,14 +4,12 @@
 $scriptVersion = "0.2.1"
 $mavenVersion = "3.6.3"
 $intellijVersion = "2020.3.2"
-$gitVersion = "2.30.2"
 $sublimeTextVersion = "3211"
 ${browser} = "microsoft-edge"
 $configFileName = "ambientacion.config"
 $mavenSettingsFileName = "settings.xml"
 $intellijConfigFileName = "silent-intellij.config"
 $intellijFileName = "ideaIC-$intellijVersion.exe"
-$gitFileName = "Git-$gitVersion-64-bit.exe"
 $winUtilsFileName = "winutils.exe"
 $mavenFileName = "apache-maven-$mavenVersion-bin.zip"
 $sublimeTextFileName = "Sublime Text Build $sublimeTextVersion x64 Setup.exe"
@@ -27,13 +25,14 @@ $pathString = "PATH"
 
 # URLS
 $oraclejdkuri = 'https://www.oracle.com/java/technologies/javase/javase-jdk8-downloads.html'
+$gitForWindowsUrl = "https://github.com/git-for-windows/git/releases/latest"
 $githubRaw = "https://raw.github.com/"
+$githubUrl = "https://github.com/"
 $githubWinutils = "https://github.com/steveloughran/winutils/raw/master/hadoop-2.7.1/bin/winutils.exe"
 $githubConfigFile = "$githubRaw$githubRepository$scriptVersion/$resources/$configFileName"
 $githubSettingsFile = "$githubRaw$githubRepository$scriptVersion/$resources/$mavenSettingsFileName"
 $githubIntellijConfigFile = "$githubRaw$githubRepository$scriptVersion/$resources/$intellijConfigFileName"
 $intellijUrl = "https://download.jetbrains.com/idea/$intellijFileName"
-$gitUrl = "https://github.com/git-for-windows/git/releases/download/v$gitVersion.windows.2/$gitFileName"
 $mavenUrl = "https://downloads.apache.org/maven/maven-3/$mavenVersion/binaries/$mavenFileName"
 $sublimeTextUrl = "https://download.sublimetext.com/$sublimeTextFileName"
 $globalDevToolsUrl = "https://globaldevtools.bbva.com/"
@@ -51,7 +50,6 @@ $mavenUserPath = "${env:USERPROFILE}\.m2\"
 $hadoopBinPath = "$hadoopHome$binSufix"
 $configFileDowloadPath = "$downloadPath$configFileName"
 $mavenDownloadSettingsPath = "$mavenUserPath$mavenSettingsFileName"
-$gitDownloadPath = "$downloadPath$gitFileName"
 $intellijDownloadConfigPath = "$downloadPath$intellijConfigFileName"
 $hadoopDownloadPath = "$hadoopBinPath$winUtilsFileName"
 $mavenDownloadPath = "$downloadPath$mavenFileName"
@@ -145,6 +143,11 @@ If($installMaven){
 
 # GIT
 If($installGit){
+    $raw = (Invoke-WebRequest -Uri $gitForWindowsUrl -UseBasicParsing).RawContent
+    $gitUrlSufix, $gitVersion = $raw.Split([Environment]::NewLine) | ForEach-Object { If ($_ -imatch 'href="/(.*/Git-(.*)-64-bit.exe)"'){ @($Matches[1], $Matches[2]) } }
+    $gitUrl = "$githubUrl$gitUrlSufix"
+    $gitFileName = "Git-$gitVersion-64-bit.exe"
+    $gitDownloadPath = "$downloadPath$gitFileName"
     $wc.Downloadfile($gitUrl, $gitDownloadPath)
     Start-Process -Wait -FilePath $gitDownloadPath -ArgumentList "/SILENT" -PassThru
 }

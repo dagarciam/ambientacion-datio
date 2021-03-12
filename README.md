@@ -3,7 +3,7 @@
 ## ¿Qué hace este Script?
 * Descarga de **Apache Hadoop winutils** en el directorio `C:\hadoop\bin\winutils.exe`
 * Descarga de **Apache Maven 3.6.3** en el directorio `C:\maven\`
-* Instalación de **GIT 2.30.0.2**
+* Instalación de **GIT latest**
 * Ayuda para la descarga e Instalación de **JDK 8uXXX** (desde Oracle)
 * Instalación de **IntelliJ Idea Community Edition 2020.3.2**
 * Instalación de **Sublime Text build 3211**
