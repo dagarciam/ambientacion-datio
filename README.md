@@ -1,9 +1,8 @@
-# Script Ambientación DATIO v0.2.0 para Windows 10
+# Script Ambientación DATIO v0.2.1 para Windows 10
 
 ## ¿Qué hace este Script?
 * Descarga de **Apache Hadoop winutils** en el directorio `C:\hadoop\bin\winutils.exe`
-* Descarga de **Apache Maven 3.6.3** en el directorio
-`C:\maven\`
+* Descarga de **Apache Maven 3.6.3** en el directorio `C:\maven\`
 * Instalación de **GIT 2.30.0.2**
 * Ayuda para la descarga e Instalación de **JDK 8uXXX** (desde Oracle)
 * Instalación de **IntelliJ Idea Community Edition 2020.3.2**
@@ -27,4 +26,13 @@ Set-ExecutionPolicy Unrestricted -Scope CurrentUser
 ```powershell
 .\ambientacion.ps1
 ```
-
+4. Edite el archivo de texto colocando TRUE o FALSE a los pasos que desea ejecutar por ejemplo para omitir la instalación de HADOOP WINUTILS y GIT el archivo deberá verse así: 
+```
+INSTALL_JDK=TRUE
+INSTALL_HADOOP_WINUTILS=FALSE
+INSTALL_MAVEN=TRUE
+INSTALL_GIT=FALSE
+INSTALL_INTELLIJ=TRUE
+INSTALL_SUBLIME=TRUE
+```
+5. A lo largo del proceso esté atento a la consola, le solicitará información y le indicará los pasos que debe realizar de forma manual.

@@ -1,78 +1,181 @@
 [Console]::OutputEncoding = [System.Text.Encoding]::UTF8
 
-$SCRIPT_VERSION = "0.2.0"
+# CONSTANTS
+$scriptVersion = "0.2.1"
+$mavenVersion = "3.6.3"
+$intellijVersion = "2020.3.2"
+$gitVersion = "2.30.2"
+$sublimeTextVersion = "3211"
+${browser} = "microsoft-edge"
+$configFileName = "ambientacion.config"
+$mavenSettingsFileName = "settings.xml"
+$intellijConfigFileName = "silent-intellij.config"
+$intellijFileName = "ideaIC-$intellijVersion.exe"
+$gitFileName = "Git-$gitVersion-64-bit.exe"
+$winUtilsFileName = "winutils.exe"
+$mavenFileName = "apache-maven-$mavenVersion-bin.zip"
+$sublimeTextFileName = "Sublime Text Build $sublimeTextVersion x64 Setup.exe"
+$githubRepository = "dagarciam/ambientacion-datio/"
+$binSufix = "bin\"
+$resources = "resources"
+$bbvaUserNameString = "BBVA_USERNAME"
+$artifactoryAPIKeyString = "ARTIFACTORY_API_KEY"
+$javaHomeString = "JAVA_HOME"
+$hadoopHomeString = "HADOOP_HOME"
+$m2HomeString = "M2_HOME"
+$pathString = "PATH"
 
-$HADOOP_HOME = "C:\hadoop"
-$M2_HOME = "C:\maven"
-$M2_VERSION = "3.6.3"
+# URLS
+$oraclejdkuri = 'https://www.oracle.com/java/technologies/javase/javase-jdk8-downloads.html'
+$githubRaw = "https://raw.github.com/"
+$githubWinutils = "https://github.com/steveloughran/winutils/raw/master/hadoop-2.7.1/bin/winutils.exe"
+$githubConfigFile = "$githubRaw$githubRepository$scriptVersion/$resources/$configFileName"
+$githubSettingsgFile = "$githubRaw$githubRepository$scriptVersion/$resources/$mavenSettingsFileName"
+$githubIntellijConfigFile = "$githubRaw$githubRepository$scriptVersion/$resources/$intellijConfigFileName"
+$intellijUrl = "https://download.jetbrains.com/idea/$intellijFileName"
+$gitUrl = "https://github.com/git-for-windows/git/releases/download/v$gitVersion.windows.2/$gitFileName"
+$mavenUrl = "https://downloads.apache.org/maven/maven-3/$mavenVersion/binaries/$mavenFileName"
+$sublimeTextUrl = "https://download.sublimetext.com/$sublimeTextFileName"
+$globalDevToolsUrl = "https://globaldevtools.bbva.com/"
+$artifactoryProfileUril = "${globalDevToolsUrl}artifactory/webapp/#/profile"
+$bitbucketKeysUrl = "${globalDevToolsUrl}bitbucket/plugins/servlet/ssh/account/keys"
+$bitbucketProcessingRepository = "${globalDevToolsUrl}/bitbucket/projects/WJEEW/repos/wjeew_datio_developer_cert_exercises/browse"
 
-$ORACLE_JDK_URI = 'https://www.oracle.com/java/technologies/javase/javase-jdk8-downloads.html'
+# PATHS
+$mavenHome = "C:\maven\"
+$hadoopHome = "C:\hadoop\"
+$downloadPath = "${env:USERPROFILE}\Downloads\"
+$rsaKeyFileName = "${env:USERPROFILE}/.ssh/id_rsa"
+$rsaKeyPubFileName = "$rsaKeyFileName.pub"
+$mavenUserPath = "${env:USERPROFILE}\.m2\"
+$hadoopBinPath = "$hadoopHome$binSufix"
+$configFileDowloadPath = "$downloadPath$configFileName"
+$mavenDownloadSettingsPath = "$mavenUserPath$m2SettingsFileName"
+$gitDownloadPath = "$downloadPath$gitFileName"
+$intellijDownloadConfigPath = "$downloadPath$intellijConfigFileName"
+$hadoopDownloadPath = "$hadoopBinPath$winUtilsFileName"
+$mavenDownloadPath = "$downloadPath$mavenFileName"
+$sublimeTextDownloadPath = "$downloadPath$sublimeTextFileName"
 
-$DOWNLOAD_DIR = "${env:USERPROFILE}\Downloads"
-$RSA_KEY_FILENAME = "${env:USERPROFILE}/.ssh/id_rsa"
-$SETTINGS_DIR = "${env:USERPROFILE}\.m2\"
-$SETTINGS_FILE = "${env:USERPROFILE}\.m2\settings.xml"
-$GIT_EXE = "$DOWNLOAD_DIR\Git-2.30.0.2-64-bit.exe"
-$INTELLIJ_EXE = "$DOWNLOAD_DIR\ideaIC-2020.3.2.exe"
-$INTELLIJ_CONFIG = "$DOWNLOAD_DIR\silent-intellij.config"
-$SUBLIME_TEXT = "$DOWNLOAD_DIR\Sublime_Text_Build_3211_x64_Setup.exe"
-$raw = (Invoke-WebRequest -Uri $ORACLE_JDK_URI -UseBasicParsing).RawContent
-$JAVA_FILE =  $raw.Split([Environment]::NewLine) | ForEach-Object { If ($_ -imatch "data-file='.*(jdk-.*-windows-x64.exe)'"){ $Matches[1] } }
-$JAVA_VERSION =  $raw.Split([Environment]::NewLine) | ForEach-Object { If ($_ -imatch "data-file='.*jdk-8u(.*)-windows-x64.exe'"){ $Matches[1] } }
-$JAVA_EXE = "$DOWNLOAD_DIR\$JAVA_FILE"
-$JAVA_HOME = "C:\Program Files\Java\jdk1.8.0_$JAVA_VERSION"
-
-[Console]::WriteLine("Descarga el archivo $JAVA_FILE en el directorio: $DOWNLOAD_DIR")
-[Console]::WriteLine("Deberas aceptar los terminos y condiciones de uso además de iniciar sesión con una cuenta Oracle (si no la tienes puedes crear una).")
-Read-Host "Presiona ENTER Para comenzar"
-Start-Process "microsoft-edge:$ORACLE_JDK_URI"
-Read-Host 'Cuando la descarga haya concluido presiona ENTER'
-
-New-Item -ItemType Directory -Force -Path "$HADOOP_HOME\bin"
-New-Item -ItemType Directory -Force -Path $M2_HOME
-New-Item -ItemType Directory -Force -Path $SETTINGS_DIR
+# SETTINGS
+[bool]$installJDK=0
+[bool]$installHadoop=0
+[bool]$installMaven=0
+[bool]$installGit=0
+[bool]$installIntellij=0
+[bool]$installSublimeText=0
 
 $wc = New-Object net.webclient
-$wc.Downloadfile("https://github.com/steveloughran/winutils/raw/master/hadoop-2.7.1/bin/winutils.exe", "$HADOOP_HOME\bin\winutils.exe")
-$wc.Downloadfile("https://downloads.apache.org/maven/maven-3/$M2_VERSION/binaries/apache-maven-$M2_VERSION-bin.zip", "$M2_HOME\apache-maven-$M2_VERSION-bin.zip")
-$wc.Downloadfile("https://github.com/git-for-windows/git/releases/download/v2.30.0.windows.2/Git-2.30.0.2-64-bit.exe", $GIT_EXE)
-$wc.Downloadfile("https://download.jetbrains.com/idea/ideaIC-2020.3.2.exe", $INTELLIJ_EXE)
-$wc.Downloadfile("https://raw.githubusercontent.com/dagarciam/ambientacion-datio/$SCRIPT_VERSION/resources/silent-intellij.config", $INTELLIJ_CONFIG)
-$wc.Downloadfile("https://download.sublimetext.com/Sublime%20Text%20Build%203211%20x64%20Setup.exe", $SUBLIME_TEXT)
+$wc.Downloadfile($githubConfigFile, $configFileDowloadPath)
+Start-Process notepad $configFileDowloadPath -Wait
 
-Add-Type -assembly "system.io.compression.filesystem"
-[System.IO.Compression.ZipFile]::ExtractToDirectory("$M2_HOME\apache-maven-$M2_VERSION-bin.zip", "$M2_HOME")
-
-Start-Process -Wait -FilePath $JAVA_EXE -ArgumentList "/s" -PassThru
-Start-Process -Wait -FilePath $GIT_EXE -ArgumentList "/SILENT" -PassThru
-Start-Process -Wait -FilePath $INTELLIJ_EXE -ArgumentList "/S /CONFIG=$INTELLIJ_CONFIG" -PassThru
-Start-Process -Wait -FilePath $SUBLIME_TEXT -ArgumentList "/VERYSILENT /NORESTART /TASKS=contextentry" -PassThru
-
-
-[System.Environment]::SetEnvironmentVariable('JAVA_HOME',"$JAVA_HOME",[System.EnvironmentVariableTarget]::User)
-[System.Environment]::SetEnvironmentVariable('HADOOP_HOME',$HADOOP_HOME,[System.EnvironmentVariableTarget]::User)
-[System.Environment]::SetEnvironmentVariable('M2_HOME',"$M2_HOME\apache-maven-$M2_VERSION",[System.EnvironmentVariableTarget]::User)
-$PATH = [System.Environment]::GetEnvironmentVariable('PATH','User') 
-$PATH = "$PATH;%M2_HOME%\bin;%JAVA_HOME%\bin;%HADOOP_HOME\bin%"
-[System.Environment]::SetEnvironmentVariable('PATH',$PATH,[System.EnvironmentVariableTarget]::User)
-
-Start-Process "microsoft-edge:https://globaldevtools.bbva.com"
-[Console]::WriteLine("Inicia sesión en el navegador con las credenciales de tu cuenta bbva")
-Read-Host 'Cuando lo hayas hecho presiona ENTER...'
-Start-Process "microsoft-edge:https://globaldevtools.bbva.com/artifactory/webapp/#/profile"
-$ARTIFACTORY_API_KEY = Read-Host 'API-KEY'
-$CONTRACTOR_EMAIL = Read-Host 'Correo BBVA (ejemplo-> danieladan.garcia.contractor@bbva.com)'
-
-if (Test-Path $RSA_KEY_FILENAME) {
-    Remove-Item "$RSA_KEY_FILENAME*"
+(Get-Content $configFileDowloadPath).split([Environment]::NewLine) | ForEach-Object { 
+    If ($_ -imatch "INSTALL_JDK=(.*)"){If($Matches[1] = "TRUE"){$installJDK = 1}}
+    If ($_ -imatch "INSTALL_HADOOP_WINUTILS=(.*)"){If($Matches[1] = "TRUE"){$installHadoop = 1}}
+    If ($_ -imatch "INSTALL_MAVEN=(.*)"){If($Matches[1] = "TRUE"){$installMaven = 1}}
+    If ($_ -imatch "INSTALL_GIT=(.*)"){If($Matches[1] = "TRUE"){$installGit = 1}}
+    If ($_ -imatch "INSTALL_INTELLIJ=(.*)"){If($Matches[1] = "TRUE"){$installIntellij = 1}}
+    If ($_ -imatch "INSTALL_SUBLIME_TEXT=(.*)"){If($Matches[1] = "TRUE"){$installSublimeText = 1}}
 }
-ssh-keygen -t rsa -m pem -C $CONTRACTOR_EMAIL -f $RSA_KEY_FILENAME -q -N """"
-Get-Content "$RSA_KEY_FILENAME.pub"
-Start-Process "microsoft-edge:https://globaldevtools.bbva.com/bitbucket/plugins/servlet/ssh/account/keys"
+
+# UPDATE ENV VAR Function
+Function updateEnviromentVar($envVar, $newValue) {
+    $oldValue = [System.Environment]::GetEnvironmentVariable($envVar)
+    $path = [System.Environment]::GetEnvironmentVariable($pathString)
+    $newPath = ""
+    If($oldValue){
+        If(Read-Host "Desea actualizar la variable JAVA_HOME de '$oldValue' a '$newValue' ? (s/n)" == "s"){
+            $path.Split(";") | ForEach-Object {
+                If($_ -imatch "$oldValue$binSufix"){
+                    $newPath = "$newPath%$envVar%$binSufix;"
+                }Else{
+                    $newPath = "$newPath$_;"
+                }
+            }
+            [System.Environment]::SetEnvironmentVariable($envVar,$newValue,[System.EnvironmentVariableTarget]::User)
+            [System.Environment]::SetEnvironmentVariable($pathString,$newPath,[System.EnvironmentVariableTarget]::User)
+        }
+    }Else{
+        [System.Environment]::SetEnvironmentVariable($envVar,$newValue,[System.EnvironmentVariableTarget]::User)
+        [System.Environment]::SetEnvironmentVariable($pathString,"$path%$envVar%$binSufix;",[System.EnvironmentVariableTarget]::User)
+    }   
+}
+
+# JDK
+If($installJDK){
+    $raw = (Invoke-WebRequest -Uri $oraclejdkuri -UseBasicParsing).RawContent
+    $jdkFileName =  $raw.Split([Environment]::NewLine) | ForEach-Object { If ($_ -imatch "data-file='.*(jdk-.*-windows-x64.exe)'"){ $Matches[1] } }
+    $jdkVersion =  $raw.Split([Environment]::NewLine) | ForEach-Object { If ($_ -imatch "data-file='.*jdk-8u(.*)-windows-x64.exe'"){ $Matches[1] } }
+    $jdkDownloadPath = "$downloadPAth\$jdkFileName"
+    $javaHome = "C:\Program Files\Java\jdk1.8.0_$jdkVersion\"
+    [Console]::WriteLine("Descarga el archivo $jdkFileName en el directorio: $jdkDownloadPath")
+    [Console]::WriteLine("Deberas aceptar los terminos y condiciones de uso además de iniciar sesión con una cuenta Oracle (si no la tienes puedes crear una).")
+    Read-Host "Presiona ENTER Para comenzar"
+    Start-Process "${browser}:$oraclejdkuri"
+    Read-Host 'Cuando la descarga haya concluido presiona ENTER'
+    Start-Process -Wait -FilePath $jdkDownloadPath -ArgumentList "/s" -PassThru
+    updateEnviromentVar($javaHomeString, $javaHome)   
+}
+
+# HADOOP
+If($installHadoop){
+    New-Item -ItemType Directory -Force -Path $hadoopBinPath
+    $wc.Downloadfile($githubWinutils, $hadoopDownloadPath)
+    updateEnviromentVar($hadoopHomeString, $hadoopHome)
+}
+
+# MAVEN
+If($installMaven){
+    Start-Process "${browser}:$globalDevToolsUrl"
+    [Console]::WriteLine("Inicia sesión en el navegador con las credenciales de tu cuenta bbva")
+    Read-Host 'Cuando lo hayas hecho presiona ENTER...'
+    Start-Process "${browser}:$artifactoryProfileUril"
+    $artifactoryAPIKey = Read-Host 'API-KEY'
+    $contractorEmail = Read-Host 'Correo BBVA (ejemplo-> danieladan.garcia.contractor@bbva.com)'
+    New-Item -ItemType Directory -Force -Path $mavenHome
+    New-Item -ItemType Directory -Force -Path $mavenUserPath
+    $wc.Downloadfile($mavenUrl, $mavenDownloadPath)
+    Add-Type -assembly "system.io.compression.filesystem"
+    [System.IO.Compression.ZipFile]::ExtractToDirectory($mavenDownloadPath, $mavenHome)
+    $wc.Downloadfile($githubSettingsgFile, $mavenDownloadSettingsPath)
+    (Get-Content -path $mavenDownloadSettingsPath -Raw) -replace $bbvaUserNameString, ($contractorEmail.Split("@")[0]) | Out-File -FilePath $mavenDownloadSettingsPath
+    (Get-Content -path $mavenDownloadSettingsPath -Raw) -replace $artifactoryAPIKeyString, $artifactoryAPIKey | Out-File -FilePath $mavenDownloadSettingsPath
+    updateEnviromentVar($m2HomeString,$mavenHome)
+}
+
+# GIT
+If($installGit){
+    $wc.Downloadfile($gitUrl, $gitDownloadPath)
+    Start-Process -Wait -FilePath $gitDownloadPath -ArgumentList "/SILENT" -PassThru
+}
+
+# INTELLIJ
+If($installIntellij){
+    $wc.Downloadfile($intellijUrl, $intellijDownloadPath)
+    $wc.Downloadfile($githubIntellijConfigFile, $intellijDownloadConfigPath)
+    Start-Process -Wait -FilePath $intellijDownloadPath -ArgumentList "/S /CONFIG=$intellijDownloadConfigPath" -PassThru
+}
+
+# SUBLIMETEXT
+If($installSublimeText){
+    $wc.Downloadfile($sublimeTextUrl, $sublimeTextDownloadPath)
+    Start-Process -Wait -FilePath $sublimeTextDownloadPath -ArgumentList "/VERYSILENT /NORESTART /TASKS=contextentry" -PassThru
+}
+
+# RSA KEYS
+if (Test-Path $rsaKeyPubFileName) {
+    If(Read-Host "El archivo $rsaKeyPubFileName existe desea sobreescribirlo? (s/n)" == "s"){
+        Remove-Item $rsaKeyFileName
+        Remove-Item $rsaKeyPubFileName
+        ssh-keygen -t rsa -m pem -C $contractorEmail -f $rsaKeyFileName -q -N """"
+    }
+}Else{
+    ssh-keygen -t rsa -m pem -C $contractorEmail -f $rsaKeyFileName -q -N """"
+}
+
+Get-Content $rsaKeyPubFileName
+Start-Process "${browser}:$bitbucketKeysUrl"
 Read-Host  "Agrega la llave, cuando lo hayas hecho presiona ENTER..."
-$wc.Downloadfile("https://raw.githubusercontent.com/dagarciam/ambientacion-datio/$SCRIPT_VERSION/resources/settings_MX.xml", $SETTINGS_FILE)
-(Get-Content -path $SETTINGS_FILE -Raw) -replace 'BBVA_USERNAME', ($CONTRACTOR_EMAIL.Split("@")[0]) | Out-File -FilePath $SETTINGS_FILE
-(Get-Content -path $SETTINGS_FILE -Raw) -replace 'ARTIFACTORY_API_KEY', $ARTIFACTORY_API_KEY | Out-File -FilePath $SETTINGS_FILE
 [Console]::WriteLine("Bien hecho!")
 Read-Host  "presiona ENTER para finalizar..."
-Start-Process "microsoft-edge:https://globaldevtools.bbva.com/bitbucket/projects/WJEEW/repos/wjeew_datio_developer_cert_exercises/browse"
+Start-Process "${browser}:$bitbucketProcessingRepository"
