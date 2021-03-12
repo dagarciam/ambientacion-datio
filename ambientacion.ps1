@@ -30,7 +30,7 @@ $oraclejdkuri = 'https://www.oracle.com/java/technologies/javase/javase-jdk8-dow
 $githubRaw = "https://raw.github.com/"
 $githubWinutils = "https://github.com/steveloughran/winutils/raw/master/hadoop-2.7.1/bin/winutils.exe"
 $githubConfigFile = "$githubRaw$githubRepository$scriptVersion/$resources/$configFileName"
-$githubSettingsgFile = "$githubRaw$githubRepository$scriptVersion/$resources/$mavenSettingsFileName"
+$githubSettingsFile = "$githubRaw$githubRepository$scriptVersion/$resources/$mavenSettingsFileName"
 $githubIntellijConfigFile = "$githubRaw$githubRepository$scriptVersion/$resources/$intellijConfigFileName"
 $intellijUrl = "https://download.jetbrains.com/idea/$intellijFileName"
 $gitUrl = "https://github.com/git-for-windows/git/releases/download/v$gitVersion.windows.2/$gitFileName"
@@ -50,7 +50,7 @@ $rsaKeyPubFileName = "$rsaKeyFileName.pub"
 $mavenUserPath = "${env:USERPROFILE}\.m2\"
 $hadoopBinPath = "$hadoopHome$binSufix"
 $configFileDowloadPath = "$downloadPath$configFileName"
-$mavenDownloadSettingsPath = "$mavenUserPath$m2SettingsFileName"
+$mavenDownloadSettingsPath = "$mavenUserPath$mavenSettingsFileName"
 $gitDownloadPath = "$downloadPath$gitFileName"
 $intellijDownloadConfigPath = "$downloadPath$intellijConfigFileName"
 $hadoopDownloadPath = "$hadoopBinPath$winUtilsFileName"
@@ -106,7 +106,7 @@ If($installJDK){
     $raw = (Invoke-WebRequest -Uri $oraclejdkuri -UseBasicParsing).RawContent
     $jdkFileName =  $raw.Split([Environment]::NewLine) | ForEach-Object { If ($_ -imatch "data-file='.*(jdk-.*-windows-x64.exe)'"){ $Matches[1] } }
     $jdkVersion =  $raw.Split([Environment]::NewLine) | ForEach-Object { If ($_ -imatch "data-file='.*jdk-8u(.*)-windows-x64.exe'"){ $Matches[1] } }
-    $jdkDownloadPath = "$downloadPAth\$jdkFileName"
+    $jdkDownloadPath = "$downloadPAth$jdkFileName"
     $javaHome = "C:\Program Files\Java\jdk1.8.0_$jdkVersion\"
     [Console]::WriteLine("Descarga el archivo $jdkFileName en el directorio: $jdkDownloadPath")
     [Console]::WriteLine("Deberas aceptar los terminos y condiciones de uso además de iniciar sesión con una cuenta Oracle (si no la tienes puedes crear una).")
@@ -137,7 +137,7 @@ If($installMaven){
     $wc.Downloadfile($mavenUrl, $mavenDownloadPath)
     Add-Type -assembly "system.io.compression.filesystem"
     [System.IO.Compression.ZipFile]::ExtractToDirectory($mavenDownloadPath, $mavenHome)
-    $wc.Downloadfile($githubSettingsgFile, $mavenDownloadSettingsPath)
+    $wc.Downloadfile($githubSettingsFile, $mavenDownloadSettingsPath)
     (Get-Content -path $mavenDownloadSettingsPath -Raw) -replace $bbvaUserNameString, ($contractorEmail.Split("@")[0]) | Out-File -FilePath $mavenDownloadSettingsPath
     (Get-Content -path $mavenDownloadSettingsPath -Raw) -replace $artifactoryAPIKeyString, $artifactoryAPIKey | Out-File -FilePath $mavenDownloadSettingsPath
     updateEnviromentVar($m2HomeString,$mavenHome)
