@@ -5,7 +5,7 @@
 * Descarga de **Apache Maven 3.6.3** en el directorio `C:\maven\`
 * Instalación de **GIT latest**
 * Ayuda para la descarga e Instalación de **JDK 8uXXX** (desde Oracle)
-* Instalación de **IntelliJ Idea Community Edition 2020.3.2**
+* Instalación de **IntelliJ Idea Community Edition 2020.3.3**
 * Instalación de **Sublime Text build 3211**
 * Seteo de variables de entorno `JAVA_HOME`, `HADOOP_HOME`, `M2_HOME` y modificación de la variable `PATH`
 * Auxilio en la creación de llave pública `~\.ssh\id_rsa.pub` para conexión a **Bitbucket**
