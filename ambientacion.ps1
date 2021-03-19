@@ -3,7 +3,7 @@
 # CONSTANTS
 $scriptVersion = "0.2.1"
 $mavenVersion = "3.6.3"
-$intellijVersion = "2020.3.2"
+$intellijVersion = "2020.3.3"
 $sublimeTextVersion = "3211"
 ${browser} = "microsoft-edge"
 $configFileName = "ambientacion.config"
